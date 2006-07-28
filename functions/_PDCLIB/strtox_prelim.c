@@ -40,6 +40,7 @@ const char * _PDCLIB_strtox_prelim( const char * p, char * sign, int * base )
         *base = 10;
     }
     return p;
+    return ( ( *base >= 2 ) && ( *base <= 36 ) ) ? p : NULL;
 }
 
 #ifdef TEST

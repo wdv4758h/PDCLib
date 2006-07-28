@@ -14,7 +14,7 @@
 
 int strncmp( const char * s1, const char * s2, size_t n )
 {
-    while ( n && ( *s1 == *s2 ) )
+    while ( *s1 && n && ( *s1 == *s2 ) )
     {
         ++s1;
         ++s2;
@@ -37,11 +37,12 @@ int strncmp( const char * s1, const char * s2, size_t n )
 
 int main()
 {
-    char cmpabcde[] = "abcde";
+    char cmpabcde[] = "abcde\0f";
     char empty[] = "";
     char x[] = "x";
     BEGIN_TESTS;
     TESTCASE( strncmp( abcde, cmpabcde, 5 ) == 0 );
+    TESTCASE( strncmp( abcde, cmpabcde, 10 ) == 0 );
     TESTCASE( strncmp( abcde, abcdx, 5 ) < 0 );
     TESTCASE( strncmp( abcdx, abcde, 5 ) > 0 );
     TESTCASE( strncmp( empty, abcde, 5 ) < 0 );

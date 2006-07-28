@@ -22,9 +22,15 @@ char * strncpy( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2, si
         */
         --n;
     }
-    while ( --n )
+    /* TODO: This works correctly, but somehow the handling of n is ugly as
+       hell.
+    */
+    if ( n > 0 )
     {
-        *s1++ = '\0';
+        while ( --n )
+        {
+            *s1++ = '\0';
+        }
     }
     return rc;
 }
@@ -48,6 +54,11 @@ int main()
     TESTCASE( s[6] == 'x' );
     TESTCASE( strncpy( s, abcde, 7 ) == s );
     TESTCASE( s[6] == '\0' );
+    TESTCASE( strncpy( s, "xxxx", 3 ) == s );
+    TESTCASE( s[0] == 'x' );
+    TESTCASE( s[2] == 'x' );
+    TESTCASE( s[3] == 'd' );
     return TEST_RESULTS;
 }
 #endif
+

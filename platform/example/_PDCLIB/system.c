@@ -8,6 +8,8 @@
    Permission is granted to use, modify, and / or redistribute at will.
 */
 
+#include <stdlib.h>
+
 /* This is an example implementation of system() fit for use with POSIX kernels.
 */
 
@@ -34,7 +36,6 @@ int system( const char * string )
 
 #ifdef TEST
 #include <_PDCLIB_test.h>
-#include <_PDCLIB_config.h>
 
 #define SHELLCOMMAND "echo 'SUCCESS testing system()'"
 

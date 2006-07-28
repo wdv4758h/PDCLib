@@ -9,10 +9,9 @@
 */
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #ifndef REGTEST
-
-#include <stdint.h>
 
 #ifndef _PDCLIB_INT_H
 #define _PDCLIB_INT_H _PDLIB_INT_H
@@ -107,14 +106,14 @@ void * malloc( size_t size )
     }
     {
     /* No fit possible; how many additional pages do we need? */
-    uintmax_t pages = ( ( size + sizeof( struct _PDCLIB_memnode_t ) - 1 ) / _PDCLIB_PAGESIZE ) + 1;
+    int pages = ( ( size + sizeof( struct _PDCLIB_memnode_t ) - 1 ) / _PDCLIB_PAGESIZE ) + 1;
     /* Allocate more pages */
     struct _PDCLIB_memnode_t * newnode = (struct _PDCLIB_memnode_t *)_PDCLIB_allocpages( pages );
     if ( newnode != NULL )
     {
         newnode->next = NULL;
         newnode->size = pages * _PDCLIB_PAGESIZE - sizeof( struct _PDCLIB_memnode_t );
-        if ( ( newnode->size - size ) > _PDCLIB_MINALLOC )
+        if ( ( newnode->size - size ) > ( _PDCLIB_MINALLOC + sizeof( struct _PDCLIB_memnode_t ) ) )
         {
             /* Oversized - split into two nodes */
             struct _PDCLIB_memnode_t * splitnode = (struct _PDCLIB_memnode_t *)( (char *)newnode + sizeof( struct _PDCLIB_memnode_t ) + size );
@@ -124,12 +123,12 @@ void * malloc( size_t size )
             if ( _PDCLIB_memlist.last == NULL )
             {
                 _PDCLIB_memlist.first = splitnode;
-                splitnode->next = NULL;
             }
             else
             {
                 _PDCLIB_memlist.last->next = splitnode;
             }
+	    splitnode->next = NULL; /* TODO: This is bug #7, uncovered by testdriver yet. */
             _PDCLIB_memlist.last = splitnode;
         }
         return (char *)newnode + sizeof( struct _PDCLIB_memnode_t );
@@ -156,7 +155,7 @@ void * malloc( size_t size )
    I am afraid, and thus there is no REGTEST equivalent.
 */
 
-#include <unistd.h>
+void * sbrk( intptr_t );
 
 int main( int argc, char * argv[] )
 {

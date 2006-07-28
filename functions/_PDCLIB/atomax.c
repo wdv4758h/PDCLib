@@ -22,7 +22,7 @@ _PDCLIB_intmax_t _PDCLIB_atomax( const char * s )
     while ( isspace( *s ) ) ++s;
     if ( *s == '+' ) ++s;
     else if ( *s == '-' ) sign = *(s++);
-    while ( ( x = memchr( _PDCLIB_digits, *(s++), 10 ) ) != NULL )
+    while ( ( x = memchr( _PDCLIB_digits, tolower(*(s++)), 10 ) ) != NULL )
     {
         rc = rc * 10 + ( x - _PDCLIB_digits );
     }

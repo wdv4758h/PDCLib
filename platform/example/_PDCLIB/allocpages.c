@@ -13,13 +13,15 @@
 */
 
 #include <stdint.h>
-
-#include <unistd.h>
+#include <stddef.h>
 
 #ifndef _PDCLIB_CONFIG_H
 #define _PDCLIB_CONFIG_H _PDCLIB_CONFIG_H
 #include <_PDCLIB_config.h>
 #endif
+
+int brk( void * );
+void * sbrk( intptr_t );
 
 static void * membreak = NULL;
 
@@ -39,7 +41,7 @@ void * _PDCLIB_allocpages( int const n )
                 /* error */
                 return NULL;
             }
-            membreak += unaligned;
+            membreak = (char *)membreak + unaligned;
         }
     }
     /* increasing or decreasing heap - standard operation */
@@ -84,3 +86,4 @@ int main()
 }
 
 #endif
+

@@ -14,24 +14,24 @@
 #include <errno.h>
 #include <string.h>
 
-_PDCLIB_uintmax_t _PDCLIB_strtox_main( const char ** p, int base, _PDCLIB_uintmax_t error, _PDCLIB_uintmax_t limval, _PDCLIB_uintmax_t limdigit, char * sign )
+_PDCLIB_uintmax_t _PDCLIB_strtox_main( const char ** p, unsigned int base, _PDCLIB_uintmax_t error, _PDCLIB_uintmax_t limval, _PDCLIB_uintmax_t limdigit, char * sign )
 {
     _PDCLIB_uintmax_t rc = 0;
     int digit = -1;
     const char * x;
-    while ( ( x = memchr( _PDCLIB_digits, toupper(**p), base ) ) != NULL )
+    while ( ( x = memchr( _PDCLIB_digits, tolower(**p), base ) ) != NULL )
     {
         digit = x - _PDCLIB_digits;
         if ( ( rc < limval ) || ( ( rc == limval ) && ( digit <= limdigit ) ) )
         {
-            rc = rc * base + ( x - _PDCLIB_digits );
+            rc = rc * base + digit;
             ++(*p);
         }
         else
         {
             errno = ERANGE;
             /* TODO: Only if endptr != NULL - but do we really want *another* parameter? */
-            while ( memchr( _PDCLIB_digits, **p, base ) != NULL ) ++(*p);
+            while ( memchr( _PDCLIB_digits, tolower(**p), base ) != NULL ) ++(*p);
             /* TODO: This is ugly, but keeps caller from negating the error value */
             *sign = '+';
             return error;

@@ -13,12 +13,15 @@
 
 #ifndef REGTEST
 
+#include <stdint.h>
+
 unsigned long int strtoul( const char * s, char ** endptr, int base )
 {
     unsigned long int rc;
     char sign = '+';
     const char * p = _PDCLIB_strtox_prelim( s, &sign, &base );
-    rc = _PDCLIB_strtox_main( &p, base, ULONG_MAX, ULONG_MAX / base, ULONG_MAX % base, &sign );
+    if ( base < 2 || base > 36 ) return 0;
+    rc = _PDCLIB_strtox_main( &p, (unsigned)base, (uintmax_t)ULONG_MAX, (uintmax_t)( ULONG_MAX / base ), (uintmax_t)( ULONG_MAX % base ), &sign );
     if ( endptr != NULL ) *endptr = ( p != NULL ) ? (char *) p : (char *) s;
     return ( sign == '+' ) ? rc : -rc;
 }
