@@ -1,3 +1,5 @@
+$Id$
+
 PDCLib - Public Domain C Library
 ================================
 
@@ -152,7 +154,7 @@ v0.4 - 2006-02-06
 Implementations for parts of <stdlib.h>. Still missing are the floating
 point conversions, and the wide-/multibyte-character functions.
 
-v0.4.1 - 2006-07-27
+v0.4.1 - 2006-07-28
 With v0.5 (<stdio.h>) taking longer than expected, v0.4.1 was set up as
 a backport of bugfixes in the current development code.
 - #1  realloc( NULL, size ) fails           (fixed)
