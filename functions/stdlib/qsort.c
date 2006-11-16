@@ -12,12 +12,10 @@
 
 #ifndef REGTEST
 
-/* This implementation is taken from Paul Edward's PDPCLIB.
-
-   Original code is credited to Raymond Gardner, Englewood CO.
-   Minor mods are credited to Paul Edwards.
-   Some reformatting and simplification done by Martin Baute.
-   All code is still Public Domain.
+/* This implementation is losely based on Paul Edward's PDPCLIB, but
+   uses pure recursion on the larger subarray instead of the iterative
+   stack used by the original (and the v0.4 release of PDCLib), as a
+   possible stack overflow was suspected.
 */
 
 /* Wrapper for _PDCLIB_memswp protects against multiple argument evaluation. */
@@ -32,13 +30,6 @@ static inline void memswp( char * i, char * j, unsigned int size )
 */
 #define T 7
 
-/* Macros for handling the QSort stack */
-#define PREPARE_STACK char * stack[STACKSIZE]; char * * stackptr = stack
-#define PUSH( base, limit ) stackptr[0] = base; stackptr[1] = limit; stackptr += 2
-#define POP( base, limit ) stackptr -= 2; base = stackptr[0]; limit = stackptr[1]
-/* TODO: This is platform-dependent */
-#define STACKSIZE 40
-
 void qsort( void * base, size_t nmemb, size_t size, int (*compar)( const void *, const void * ) )
 {
     char * i;
@@ -46,7 +37,11 @@ void qsort( void * base, size_t nmemb, size_t size, int (*compar)( const void *,
     size_t thresh     = T * size;
     char * base_      = (char *)base;
     char * limit      = base_ + nmemb * size;
-    PREPARE_STACK;
+
+    if ( ( nmemb == 0 ) || ( size == 0 ) || ( base == NULL ) )
+    {
+        return;
+    }
 
     for ( ;; )
     {
@@ -56,9 +51,8 @@ void qsort( void * base, size_t nmemb, size_t size, int (*compar)( const void *,
             i = base_ + size;
             j = limit - size;
             /* We swap first with middle element, then sort that with second
-               and last element so that eventually first element is the median
-               of the three - avoiding pathological pivots.
-               TODO: Instead of middle element, chose one randomly.
+            and last element so that eventually first element is the median
+            of the three - avoiding pathological pivots.
             */
             memswp( ( ( ( (size_t)( limit - base_ ) ) / size ) / 2 ) * size + base_, base_, size );
             if ( compar( i, j ) > 0 ) memswp( i, j, size );
@@ -87,17 +81,18 @@ void qsort( void * base, size_t nmemb, size_t size, int (*compar)( const void *,
             }
             /* move pivot into correct place */
             memswp( base_, j, size );
-            /* larger subfile base / limit to stack, sort smaller */
+            /* recurse into larger subpartition, iterate on smaller */
+            /* FIXME: The following is most likely the buggy section. */
             if ( j - base_ > limit - i )
             {
                 /* left is larger */
-                PUSH( base_, j );
+                qsort( base, ( j - base_ ) / size, size, compar );
                 base_ = i;
             }
             else
             {
                 /* right is larger */
-                PUSH( i, limit );
+                qsort( i, ( limit - i ) / size, size, compar );
                 limit = j;
             }
         }
@@ -114,16 +109,10 @@ void qsort( void * base, size_t nmemb, size_t size, int (*compar)( const void *,
                     }
                 }
             }
-            if ( stackptr != stack )           /* if any entries on stack  */
-            {
-                POP( base_, limit );
-            }
-            else                       /* else stack empty, done   */
-            {
-                break;
-            }
+            break;
         }
     }
+    return;
 }
 
 #endif
@@ -164,3 +153,4 @@ int main()
 }
 
 #endif
+
