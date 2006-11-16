@@ -82,7 +82,6 @@ void qsort( void * base, size_t nmemb, size_t size, int (*compar)( const void *,
             /* move pivot into correct place */
             memswp( base_, j, size );
             /* recurse into larger subpartition, iterate on smaller */
-            /* FIXME: The following is most likely the buggy section. */
             if ( j - base_ > limit - i )
             {
                 /* left is larger */
